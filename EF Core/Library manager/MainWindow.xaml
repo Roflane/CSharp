@@ -8,15 +8,61 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Поле поиска -->
         <TextBox Grid.Row="0" Margin="10" 
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                 Padding="5"/>
+                 Padding="5"
+                 KeyDown="TextBox_KeyDown"/>
         
-        <!-- DataGrid с привязкой -->
-        <DataGrid Grid.Row="1" Margin="10"
-                  ItemsSource="{Binding FilteredBooks}"
-                  AutoGenerateColumns="True"
-                  IsReadOnly="True"/>
+        <TabControl Grid.Row="1" Margin="10">
+            <TabItem Header="Books">
+                <DataGrid ItemsSource="{Binding FilteredBooks}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}"/>
+                        <DataGridTextColumn Header="ReleaseDate" Binding="{Binding ReleaseDate}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            
+            <TabItem Header="Authors">
+                <DataGrid ItemsSource="{Binding FilteredAuthors}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                        <DataGridTextColumn Header="IsAlive" Binding="{Binding IsAlive}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            
+            <TabItem Header="Readers">
+                <DataGrid ItemsSource="{Binding FilteredReaders}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="FavoriteAuthor" Binding="{Binding FavoriteAuthor}"/>
+                        <DataGridTextColumn Header="AuthorId" Binding="{Binding AuthorId}"/>
+                        <DataGridTextColumn Header="BooksPurchased" Binding="{Binding BooksPurchased}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem> 
+            
+            <TabItem Header="Releases">
+                <DataGrid ItemsSource="{Binding FilteredReleases}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="AuthorId" Binding="{Binding AuthorId}"/>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem> 
+            
+        </TabControl>
     </Grid>
 </Window>
