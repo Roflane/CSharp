@@ -1,0 +1,4 @@
+[8/22/2025 2:09:03 PM] Books | Data created successfully.
+[8/22/2025 2:09:20 PM] Books | Data read successfully.
+[8/22/2025 2:09:46 PM] Books | Data deleted successfully.
+[8/22/2025 2:10:49 PM] Readers | [Create] Error: failed to create data. Length of favorite author in reader cannot be more than 100!
