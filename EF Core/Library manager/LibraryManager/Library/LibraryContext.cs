@@ -11,7 +11,6 @@ public class LibraryContext : DbContext {
     public DbSet<Reader> Readers { get; set; }
     
     public XLogger logger;
-    public StringBuilder lastLog;
     
     public LibraryContext() {}
     public LibraryContext(DbContextOptions<LibraryContext> options) : base(options) { }
