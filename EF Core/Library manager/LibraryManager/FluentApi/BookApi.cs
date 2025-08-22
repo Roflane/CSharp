@@ -6,7 +6,7 @@ public class BookApi : IEntityTypeConfiguration<Book> {
         builder.HasKey(b => b.Id);
         builder.Property(b => b.Title)
             .IsRequired()
-            .HasMaxLength(150);
+            .HasMaxLength(StringLength.BookTitle);
         builder.Property(b => b.ReleaseDate)
             .IsRequired();
     }

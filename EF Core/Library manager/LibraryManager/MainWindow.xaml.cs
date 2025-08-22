@@ -9,16 +9,15 @@ using Microsoft.Extensions.Configuration;
 
 namespace LibraryManager;
 
-public partial class MainWindow : Window, INotifyPropertyChanged
-{
+public partial class MainWindow : Window, INotifyPropertyChanged {
     private readonly string _wndName = "LibraryManager";
     private QueryImpl _query;
     private string _searchText;
     
-    public List<Book> FilteredBooks => _query.FilteredBooks;
-    public List<Author> FilteredAuthors => _query.FilteredAuthors;
-    public List<Reader> FilteredReaders => _query.FilteredReaders;
-    public List<Release> FilteredReleases => _query.FilteredReleases;
+    public List<Book> FilteredBooks => _query.BookData.FilteredEntityList;
+    public List<Author> FilteredAuthors => _query.AuthorData.FilteredEntityList;
+    public List<Reader> FilteredReaders => _query.ReaderData.FilteredEntityList;
+    public List<Release> FilteredReleases => _query.ReleaseData.FilteredEntityList;
     
     private void ConfigureSql() {
         var configuration = new ConfigurationBuilder()
@@ -37,10 +36,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     private void LoadInitData() {
-        _query.LoadAuthors();
-        _query.LoadBooks();
-        _query.LoadReaders();
-        _query.LoadReleases();
+        _query.AuthorData.LoadEntity();
+        _query.BookData.LoadEntity();
+        _query.ReaderData.LoadEntity();
+        _query.ReleaseData.LoadEntity();
     }
     
     public MainWindow() {
@@ -55,12 +54,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         get => _searchText;
         set {
             _searchText = value;
-            OnPropertyChanged(nameof(SearchText));
             _query.SearchText = value;
-            _query.FilterBooks();
-            _query.FilterAuthors();
-            _query.FilterReaders();
-            _query.FilterReleases();
+            _query.BookData.FilterEntities();
+            _query.AuthorData.FilterEntities();
+            _query.ReaderData.FilterEntities();
+            _query.ReleaseData.FilterEntities();
+            OnPropertyChanged(nameof(SearchText));
         }
     }
     
@@ -74,7 +73,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged(string propertyName) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

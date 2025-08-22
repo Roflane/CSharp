@@ -6,7 +6,7 @@ public class AuthorApi : IEntityTypeConfiguration<Author> {
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(StringLength.AuthorName);
         builder.Property(a => a.IsAlive)
             .IsRequired();
     }

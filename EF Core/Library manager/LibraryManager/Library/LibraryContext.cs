@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManager.Library;
@@ -9,7 +8,7 @@ public class LibraryContext : DbContext {
     public DbSet<Author> Authors { get; set; }
     public DbSet<Release> Releases { get; set; }
     public DbSet<Reader> Readers { get; set; }
-    
+
     public XLogger logger;
     
     public LibraryContext() {}

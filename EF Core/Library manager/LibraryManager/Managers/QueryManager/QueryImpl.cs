@@ -1,35 +1,36 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using LibraryManager.Library;
+using LibraryManager.Managers.DataManager;
 
 namespace LibraryManager.QueryManager;
+
 
 public class QueryImpl : INotifyPropertyChanged {
     private readonly LibraryContext _dbContext;
     private string _searchText;
     
-    private List<Author> _authors;
-    private List<Author> _filteredAuthors;
-    private List<Book> _books;
-    private List<Book> _filteredBooks;
-    private List<Reader> _readers;
-    private List<Reader> _filteredReaders;
-    private List<Release> _releases;
-    private List<Release> _filteredReleases;
+    private ConstraintManager _constraintManager;
+    public EntityDataManager<Author> AuthorData;
+    public EntityDataManager<Book> BookData;
+    public EntityDataManager<Reader> ReaderData;
+    public EntityDataManager<Release> ReleaseData;
+ 
+    public string SearchText {
+        get => _searchText;
+        set => _searchText = value;
+    }
     
     public QueryImpl(LibraryContext dbContext) {
         _dbContext = dbContext;
-        _books = new List<Book>();
-        _filteredBooks = new List<Book>();
-        _authors = new List<Author>();
-        _filteredAuthors = new List<Author>();
-        _readers = new List<Reader>();
-        _filteredReaders = new List<Reader>();
-        _releases = new List<Release>();
-        _filteredReleases = new List<Release>();
+        _constraintManager = new ConstraintManager(_dbContext);
+        AuthorData = new(_dbContext, _searchText);
+        BookData = new(_dbContext, _searchText);
+        ReaderData = new(_dbContext, _searchText);
+        ReleaseData = new(_dbContext, _searchText);
     }
     
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged(string propertyName) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -41,30 +42,43 @@ public class QueryImpl : INotifyPropertyChanged {
     private void HandleQueryRead() {
         if (_searchText.Trim().Contains(QuerySyntax.R)) {
             try {
+                bool readFailed = false;
                 string tableName = _searchText.Replace(QuerySyntax.R, string.Empty);
                 
                 switch (tableName) {
                     case "Authors":
-                        FilteredAuthors = _authors;
+                        AuthorData.LoadEntity();
                         break;
                     case "Books":
-                        FilteredBooks = _books;
+                        BookData.LoadEntity();
                         break;
                     case "Readers":
-                        FilteredReaders = _readers;
+                        ReaderData.LoadEntity();
                         break;
                     case "Releases":
-                        FilteredReleases = _releases;
+                        ReleaseData.LoadEntity();
                         break;
-                } 
+                    default:
+                        readFailed = true;
+                        break;
+                }
 
-                MessageBox.Show(QueryLog.SuccessRead);
-                _dbContext.logger.LogToFile($"{tableName} | {QueryLog.SuccessRead}");
+                if (!readFailed) {
+                    _dbContext.logger.LogToFile($"{tableName} | {QueryLog.SuccessRead}");
+                    MessageBox.Show(QueryLog.SuccessRead, "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else {
+                    _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorRead}");
+                    MessageBox.Show(QueryLog.ErrorRead, "Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+ 
             }
             catch (Exception ex) {
                 string error = $"{QueryLog.ErrorRead} {ex.Message}";
                 _dbContext.logger.LogToFile(error);
-                MessageBox.Show(error);
+                MessageBox.Show(error, "Error", MessageBoxButton.OK,  MessageBoxImage.Error);
             }
         }
     }
@@ -92,41 +106,82 @@ public class QueryImpl : INotifyPropertyChanged {
                             Name = props["Name"],
                             IsAlive = bool.Parse(props["IsAlive"])
                         };
-                        _dbContext.Authors.Add(author);
+                        
+                        if (_constraintManager.IsValidAuthor(author)) {
+                            _dbContext.Authors.Add(author);
+                        }
+                        else {
+                            _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorCreate}, {ConstraintError.Author}");
+                            MessageBox.Show(ConstraintError.Author, "Error", 
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                         break;
-                    
                     case "Books":
                         var book = new Book {
                             Title = props["Title"],
                             ReleaseDate = DateTime.Parse(props["ReleaseDate"])
                         };
-                        _dbContext.Books.Add(book);
+
+                        if (_constraintManager.IsValidBook(book)) {
+                            _dbContext.Books.Add(book);
+                        }
+                        else {
+                            _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorCreate}, {ConstraintError.Book}");
+                            MessageBox.Show(ConstraintError.Book, "Error",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                         break;
                     case "Readers":
                         var reader = new Reader {
                             FavoriteAuthor = props["FavoriteAuthor"],
                             AuthorId = Convert.ToInt32(props["AuthorId"])
                         };
-                        _dbContext.Readers.Add(reader);
+                        
+                        if (_constraintManager.IsValidReader(reader)) {
+                            _dbContext.Readers.Add(reader);
+                        }
+                        else {
+                            _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorCreate}, {ConstraintError.Reader}");
+                            MessageBox.Show(ConstraintError.Reader, "Error", 
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                         break;
                     case "Releases":
                         var release = new Release {
                             AuthorId = Convert.ToInt32(props["AuthorId"]),
                             Title = props["Title"]
                         };
-                        _dbContext.Releases.Add(release);
+                        
+                        if (_constraintManager.IsValidRelease(release)) {
+                            _dbContext.Releases.Add(release);
+                        }
+                        else {
+                            _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorCreate}, {ConstraintError.Release}");
+                            MessageBox.Show(ConstraintError.Release, "Error", 
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                         break;
                 }
 
                 if (_dbContext.SaveChanges() > 0) {
-                    MessageBox.Show(QueryLog.SuccessCreate);
+                    MessageBox.Show(QueryLog.SuccessCreate, "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                     _dbContext.logger.LogToFile($"{tableName} | {QueryLog.SuccessCreate}");
+                }
+                else {
+                    MessageBox.Show(QueryLog.ErrorCreate, "Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorCreate}");
                 }
             }
             catch (Exception ex) {
                 string error = $"{QueryLog.ErrorCreate} {ex.Message}";
                 _dbContext.logger.LogToFile(error);
-                MessageBox.Show(error);
+                MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -188,14 +243,20 @@ public class QueryImpl : INotifyPropertyChanged {
                 }
 
                 if (_dbContext.SaveChanges() > 0) {
-                    MessageBox.Show(QueryLog.SuccessUpdate);
+                    MessageBox.Show(QueryLog.SuccessUpdate, "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                     _dbContext.logger.LogToFile($"{tableName} | {QueryLog.SuccessUpdate}");
+                }
+                else {
+                    MessageBox.Show(QueryLog.ErrorUpdate, "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorUpdate}");
                 }
             }
             catch (Exception ex) {
                 string error = $"{QueryLog.ErrorUpdate} {ex.Message}";
-                MessageBox.Show(error);
                 _dbContext.logger.LogToFile(error);
+                MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -234,14 +295,18 @@ public class QueryImpl : INotifyPropertyChanged {
                 }
 
                 if (_dbContext.SaveChanges() > 0) {
-                    MessageBox.Show(QueryLog.SuccessDelete);
                     _dbContext.logger.LogToFile($"{tableName} | {QueryLog.SuccessDelete}");
+                    MessageBox.Show(QueryLog.SuccessDelete);
+                } else {
+                    _dbContext.logger.LogToFile($"{tableName} | {QueryLog.ErrorDelete}");
+                    MessageBox.Show(QueryLog.ErrorDelete,  "Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex) {
                 string error = $"{QueryLog.ErrorCreate} {ex.Message}";
                 _dbContext.logger.LogToFile(error);
-                MessageBox.Show(error);
+                MessageBox.Show(error, "Error",  MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -251,90 +316,5 @@ public class QueryImpl : INotifyPropertyChanged {
         HandleQueryRead();
         HandleQueryUpdate();
         HandleQueryDelete();
-    }
-    
-    public string SearchText {
-        get => _searchText;
-        set => _searchText = value;
-    }
-    
-    // Books
-    public List<Book> FilteredBooks {
-        get => _filteredBooks;
-        private set {
-            _filteredBooks = value;
-            OnPropertyChanged(nameof(FilteredBooks));
-        }
-    }
-    
-    public void LoadBooks() {
-        _books = _dbContext.Books.ToList();
-        FilteredBooks = new List<Book>();
-    }
-
-    public void FilterBooks() {
-        if (string.IsNullOrWhiteSpace(_searchText)) {
-            FilteredBooks = new List<Book>();
-        }
-    }
-    
-    // Authors
-    public List<Author> FilteredAuthors {
-        get => _filteredAuthors;
-        private set {
-            _filteredAuthors = value;
-            OnPropertyChanged(nameof(FilteredAuthors));
-        }
-    }
-    
-    public void LoadAuthors() {
-        _authors = _dbContext.Authors.ToList();
-        FilteredAuthors = new List<Author>();
-    }
-    
-    public void FilterAuthors() {
-        if (string.IsNullOrWhiteSpace(_searchText)) {
-            FilteredAuthors = new List<Author>();
-        }
-    }
-    
-    // Readers
-    public List<Reader> FilteredReaders {
-        get => _filteredReaders;
-        private set {
-            _filteredReaders = value;
-            OnPropertyChanged(nameof(FilteredReaders));
-        }
-    }
-    
-    public void LoadReaders() {
-        _readers = _dbContext.Readers.ToList();
-        FilteredReaders = new List<Reader>();
-    }
-    
-    public void FilterReaders() {
-        if (string.IsNullOrWhiteSpace(_searchText)) {
-            FilteredReaders = new List<Reader>();
-        }
-    }
-    
-    // Releases
-    public List<Release> FilteredReleases {
-        get => _filteredReleases;
-        private set {
-            _filteredReleases = value;
-            OnPropertyChanged(nameof(FilteredReleases));
-        }
-    }
-    
-    public void LoadReleases() {
-        _releases = _dbContext.Releases.ToList();
-        FilteredReleases = new List<Release>();
-    }
-    
-    public void FilterReleases() {
-        if (string.IsNullOrWhiteSpace(_searchText)) {
-            FilteredReleases = new List<Release>();
-        }
     }
 }

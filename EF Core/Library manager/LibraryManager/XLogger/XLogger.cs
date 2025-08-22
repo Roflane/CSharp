@@ -1,18 +1,10 @@
 ﻿using System.IO;
-using System.Text;
-
 
 public class XLogger {
     private readonly string _fileName;
     
     public XLogger(string fileName) {
         _fileName = fileName;
-    }
-
-    public string GetLastLog(StringBuilder lastLog) {
-        string retString = lastLog.ToString();
-        lastLog.Clear();
-        return retString;
     }
     
     public void LogToFile(string msg) {

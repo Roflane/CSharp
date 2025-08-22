@@ -21,6 +21,7 @@
       </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.6.25358.103" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0-preview.6.25358.103" />
+      <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     </ItemGroup>
 
 </Project>
