@@ -1,0 +1,14 @@
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\bin\Debug\net9.0\DummyCalc.exe
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\bin\Debug\net9.0\DummyCalc.deps.json
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\bin\Debug\net9.0\DummyCalc.runtimeconfig.json
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\bin\Debug\net9.0\DummyCalc.dll
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\bin\Debug\net9.0\DummyCalc.pdb
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.AssemblyInfoInputs.cache
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.AssemblyInfo.cs
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.dll
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\refint\DummyCalc.dll
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.pdb
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\DummyCalc.genruntimeconfig.cache
+C:\Users\Administrator\RiderProjects\DummyCalc\DummyCalc\obj\Debug\net9.0\ref\DummyCalc.dll

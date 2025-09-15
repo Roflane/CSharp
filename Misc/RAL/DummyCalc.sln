@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyCalc", "DummyCalc\DummyCalc.csproj", "{5F564AC0-E5FF-4B96-99BB-1514B7E5E459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calc", "Calc\Calc.csproj", "{17BC7013-62C1-4039-B5AC-9D255FFCCA46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F564AC0-E5FF-4B96-99BB-1514B7E5E459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F564AC0-E5FF-4B96-99BB-1514B7E5E459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F564AC0-E5FF-4B96-99BB-1514B7E5E459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F564AC0-E5FF-4B96-99BB-1514B7E5E459}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17BC7013-62C1-4039-B5AC-9D255FFCCA46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17BC7013-62C1-4039-B5AC-9D255FFCCA46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17BC7013-62C1-4039-B5AC-9D255FFCCA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17BC7013-62C1-4039-B5AC-9D255FFCCA46}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
