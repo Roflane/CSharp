@@ -1,0 +1,14 @@
+C:\Users\Administrator\RiderProjects\Server\XChat\bin\Release\net9.0\XChat.exe
+C:\Users\Administrator\RiderProjects\Server\XChat\bin\Release\net9.0\XChat.deps.json
+C:\Users\Administrator\RiderProjects\Server\XChat\bin\Release\net9.0\XChat.runtimeconfig.json
+C:\Users\Administrator\RiderProjects\Server\XChat\bin\Release\net9.0\XChat.dll
+C:\Users\Administrator\RiderProjects\Server\XChat\bin\Release\net9.0\XChat.pdb
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.AssemblyInfoInputs.cache
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.AssemblyInfo.cs
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.dll
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\refint\XChat.dll
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.pdb
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\XChat.genruntimeconfig.cache
+C:\Users\Administrator\RiderProjects\Server\XChat\obj\Release\net9.0\ref\XChat.dll
