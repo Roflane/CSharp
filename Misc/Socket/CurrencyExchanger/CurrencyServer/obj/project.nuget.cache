@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "8nlZFxIP4h4=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyServer\\CurrencyServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Administrator\\.nuget\\packages\\htmlagilitypack\\1.12.3\\htmlagilitypack.1.12.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,17 @@
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\CurrencyServer.exe
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\CurrencyServer.deps.json
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\CurrencyServer.runtimeconfig.json
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\CurrencyServer.dll
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\CurrencyServer.pdb
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\bin\Release\net9.0\HtmlAgilityPack.dll
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.csproj.AssemblyReference.cache
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.AssemblyInfoInputs.cache
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.AssemblyInfo.cs
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\Currency.B5D1B09B.Up2Date
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.dll
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\refint\CurrencyServer.dll
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.pdb
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\CurrencyServer.genruntimeconfig.cache
+C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyServer\obj\Release\net9.0\ref\CurrencyServer.dll
