@@ -13,12 +13,22 @@ public static class CurrencyClientChecker {
 
     public static bool CheckSocket(Socket socket) {
         try {
-            socket.Send(Encoding.UTF8.GetBytes("STATUS_SUCCESS"));
+            byte[] buffer = new byte[100];
+            int received = socket.Receive(buffer);
+            string msg = Encoding.UTF8.GetString(buffer, 0, received);
+
+            if (msg == "SERVER_BUSY") {
+                Log.Red("Server is down or busy, please try again later...");
+                return false;
+            }
+            if (msg == "SERVER_OK") {
+                return true;
+            }
         }
         catch (Exception) {
-            Log.Red("Server is busy, please try again later...");
-            return false;
+            Log.Red("Server is unreachable.");
         }
-        return true;
+        return false;
     }
+
 }

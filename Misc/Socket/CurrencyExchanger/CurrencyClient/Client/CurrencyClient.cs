@@ -14,34 +14,34 @@ public class Client {
     
     public void Run() {
         // if (!CurrencyClientChecker.CheckSemaphore()) {
-        //     Log.Red("Server system is currently unavailable.");
+        //     Log.Red("Server system is currently unavailable.\n");
         //     return;
         // }
         //
-        // if (!CurrencyClientChecker.CheckSocket(_socket)) {
-        //     Log.Red("Server is down or busy, try again later.");
-        //     return;
-        // }
+        if (!CurrencyClientChecker.CheckSocket(_socket)) {
+            return;
+        }
         
-        Log.Green("Example: from USD 73 to UAH\n");
-        while (true) {
-            Log.Green("> ");
+        Log.Blue("Example: from USD 73 to UAH\n");
+        while (_socket.Connected) {
+            Log.Green("\n> ");
             string? request = Console.ReadLine();
-            if (request!.Split().Length != 5) {
-                Log.Red("Invalid request, please try again.\n");
-            }
-            
             if (request == "exit") {
-                Environment.Exit(0);
+                _socket.Close();
                 break;
+            }
+
+            if (request!.Contains(",")) {
+                request = request.Replace(",", ".");
             }
             
             byte[] bytesToSend = Encoding.UTF8.GetBytes(request);
             _socket.Send(bytesToSend);
             
-            byte[] responseBuffer = new byte[100];
+            byte[] responseBuffer = new byte[1024];
             int responseData = _socket.Receive(responseBuffer);
-            Log.Green(Encoding.UTF8.GetString(responseBuffer, 0, responseData) + "\n");
+            Log.Green($"Response received: {Encoding.UTF8.GetString(responseBuffer, 0, responseData)}");
+            
         }
     }    
 }

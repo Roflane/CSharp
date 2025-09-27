@@ -12,3 +12,17 @@ C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyClient\obj\Release\n
 C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyClient\obj\Release\net9.0\CurrencyClient.pdb
 C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyClient\obj\Release\net9.0\CurrencyClient.genruntimeconfig.cache
 C:\Users\Administrator\RiderProjects\CurrencyServer\CurrencyClient\obj\Release\net9.0\ref\CurrencyClient.dll
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\bin\Release\net9.0\CurrencyClient.exe
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\bin\Release\net9.0\CurrencyClient.deps.json
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\bin\Release\net9.0\CurrencyClient.runtimeconfig.json
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\bin\Release\net9.0\CurrencyClient.dll
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\bin\Release\net9.0\CurrencyClient.pdb
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.AssemblyInfoInputs.cache
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.AssemblyInfo.cs
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.dll
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\refint\CurrencyClient.dll
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.pdb
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\CurrencyClient.genruntimeconfig.cache
+C:\Users\Administrator\RiderProjects\CurrencyExchanger\CurrencyClient\obj\Release\net9.0\ref\CurrencyClient.dll

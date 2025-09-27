@@ -7,14 +7,14 @@ using CurrencyServer.Parser;
 using HtmlAgilityPack;
 
 public class Server : IDisposable {
-    //private Semaphore _semaphore;
+    private Semaphore _semaphore;
     private Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private IPEndPoint _ep;
     
     private HtmlWeb _web = new();
     
     public Server(string ipPort) {
-      //  _semaphore = new Semaphore(3, 3, "CurrencyServer");
+        _semaphore = new Semaphore(10, 10, "CurrencyServer");
         _ep = IPEndPoint.Parse(ipPort);
         _socket.Bind(_ep);
         _socket.Listen();
@@ -39,20 +39,13 @@ public class Server : IDisposable {
             while (true) {
                 try {
                     Socket client = _socket.Accept();
+
+                    if (!CurrencyServerChecker.InitCheckAndProcess(_semaphore, client)) break;
                     
-                    // if (_semaphore.WaitOne(0)) {
-                    //     client.Close();
-                    //     break;
-                    // }
-                    
-                    byte[] statusBuffer = new byte[1024];
-                    int statusData = client.Receive(statusBuffer);
-                    Log.Blue($"{statusData}\n");                    
-        
                     string clientLog = $"Client {client.RemoteEndPoint} connected at {DateTime.Now}";
                     Log.Green($"\n{clientLog}");
                     Logger.Write(clientLog);
-                    
+
                     _ = Task.Run(() => HandleClient(client));
                 }
                 catch (Exception ex) {
@@ -65,10 +58,10 @@ public class Server : IDisposable {
     
     private void HandleClient(Socket client) {
         try {
-            byte[] buffer = new byte[1024];
-        
-            int requestData = client.Receive(buffer);
             while (client.Connected) {
+                byte[] buffer = new byte[1024];
+                int requestData = client.Receive(buffer);
+                
                 string requestText = Encoding.UTF8.GetString(buffer, 0, requestData);
                 string[] tokens = requestText.Trim().Split(' ');
                 
@@ -77,13 +70,17 @@ public class Server : IDisposable {
                     continue;
                 }
             
-                string from = tokens[0];
+                string from = tokens[1];
                 string amount = tokens[2];
                 string to = tokens[4];
                     
                 try {
-                    string res = XeParser.GetResult(_web, amount, from, to);
+                    string res = XeParser.GetResult(amount, from, to);
                     client.Send(Encoding.UTF8.GetBytes(res));
+
+                    string resMsg = $"[{DateTime.Now}] Sent: {res} to {client.RemoteEndPoint}";
+                    Log.Blue(resMsg);
+                    Logger.Write(resMsg);
                 }
                 catch (Exception ex) {
                     Log.Red($"Send error: {ex.Message}\n");
@@ -91,10 +88,10 @@ public class Server : IDisposable {
                 }
             }
         }
-        catch (Exception ex) {
-            Log.Red($"Client error: {ex.Message}");
-        }
         finally {
+            string clientLog = $"Client {client.RemoteEndPoint} disconnected at {DateTime.Now}";
+            Log.Red($"[{DateTime.Now}] {clientLog}\n");
+            Logger.Write(clientLog);
             client.Close();
             //_semaphore.Release();
         }

@@ -1,5 +1,6 @@
 ﻿using CurrencyServer.Helper;
 using CurrencyServer.Parser;
+using HtmlAgilityPack;
 
 namespace CurrencyServer;
 

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyClient\\CurrencyClient.csproj": {}
+    "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyClient\\CurrencyClient.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyClient\\CurrencyClient.csproj": {
+    "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyClient\\CurrencyClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyClient\\CurrencyClient.csproj",
+        "projectUniqueName": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyClient\\CurrencyClient.csproj",
         "projectName": "CurrencyClient",
-        "projectPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyClient\\CurrencyClient.csproj",
+        "projectPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyClient\\CurrencyClient.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyServer\\CurrencyClient\\obj\\",
+        "outputPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyClient\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -59,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\Administrator\\.dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,11 +1,11 @@
 ﻿namespace CurrencyServer.Helper;
 
 public static class Logger {
-    private static Lock _lock = new Lock();
+    private static readonly Lock Lock = new();
     
     public static void Write(string msg) {
-        lock (_lock) {
-            File.WriteAllText("log.txt", $"{msg}\n");
+        lock (Lock) {
+            File.AppendAllText("log.txt", $"{msg}\n");
         }
     }
 }
