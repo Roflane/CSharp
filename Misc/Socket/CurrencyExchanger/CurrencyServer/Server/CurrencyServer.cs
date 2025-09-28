@@ -75,12 +75,16 @@ public class Server : IDisposable {
                 string to = tokens[4];
                     
                 try {
-                    string res = XeParser.GetResult(amount, from, to);
-                    client.Send(Encoding.UTF8.GetBytes(res));
-
-                    string resMsg = $"[{DateTime.Now}] Sent: {res} to {client.RemoteEndPoint}";
-                    Log.Blue(resMsg);
-                    Logger.Write(resMsg);
+                    string? res = XeParser.GetResult(amount, from, to);
+                    if (res != null)  {
+                        client.Send(Encoding.UTF8.GetBytes(res));
+                        string resMsg = $"[{DateTime.Now}] Sent: {res} to {client.RemoteEndPoint}";
+                        Log.Blue(resMsg);
+                        Logger.Write(resMsg);
+                    }
+                    else {
+                        client.Send(Encoding.UTF8.GetBytes("Invalid token found, please try again."));
+                    }
                 }
                 catch (Exception ex) {
                     Log.Red($"Send error: {ex.Message}\n");

@@ -75,11 +75,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
+      "projectUniqueName": "C:\\Users\\Administrator\\RiderProjects\\C#\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
       "projectName": "CurrencyServer",
-      "projectPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
+      "projectPath": "C:\\Users\\Administrator\\RiderProjects\\C#\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyServer\\obj\\",
+      "outputPath": "C:\\Users\\Administrator\\RiderProjects\\C#\\CurrencyExchanger\\CurrencyServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -104,9 +104,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
+        "auditMode": "all"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -133,7 +133,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Users\\Administrator\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

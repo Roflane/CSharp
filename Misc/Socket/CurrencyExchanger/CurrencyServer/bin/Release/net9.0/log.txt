@@ -56,3 +56,31 @@ Client 127.0.0.1:50270 connected at 9/27/2025 5:26:30 PM
 Sent SERVER_BUSY to client 127.0.0.1:50271
 Client 127.0.0.1:50269 disconnected at 9/27/2025 5:26:38 PM
 Client 127.0.0.1:50270 disconnected at 9/27/2025 5:26:38 PM
+Sent SERVER_OK to client 127.0.0.1:58180
+Client 127.0.0.1:58180 connected at 9/28/2025 3:04:56 PM
+[9/28/2025 3:05:04 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:58180
+[9/28/2025 3:05:06 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:58180
+[9/28/2025 3:05:07 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:58180
+[9/28/2025 3:05:08 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:58180
+Client 127.0.0.1:58180 disconnected at 9/28/2025 3:06:12 PM
+Sent SERVER_OK to client 127.0.0.1:54451
+Client 127.0.0.1:54451 connected at 9/28/2025 3:06:17 PM
+[9/28/2025 3:06:30 PM] Sent: 6,468,191,900,000,000 Japanese Yen to 127.0.0.1:54451
+Sent SERVER_OK to client 127.0.0.1:59254
+Client 127.0.0.1:59254 connected at 9/28/2025 3:15:59 PM
+Client 127.0.0.1:59254 disconnected at 9/28/2025 3:16:34 PM
+Sent SERVER_OK to client 127.0.0.1:59268
+Client 127.0.0.1:59268 connected at 9/28/2025 3:20:41 PM
+[9/28/2025 3:20:49 PM] Sent:  to 127.0.0.1:59268
+Sent SERVER_OK to client 127.0.0.1:59276
+Client 127.0.0.1:59276 connected at 9/28/2025 3:21:47 PM
+[9/28/2025 3:21:59 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59276
+Client 127.0.0.1:59276 disconnected at 9/28/2025 3:22:09 PM
+Sent SERVER_OK to client 127.0.0.1:59288
+Client 127.0.0.1:59288 connected at 9/28/2025 3:26:16 PM
+Sent SERVER_OK to client 127.0.0.1:59295
+Client 127.0.0.1:59295 connected at 9/28/2025 3:26:48 PM
+Sent SERVER_OK to client 127.0.0.1:59301
+Client 127.0.0.1:59301 connected at 9/28/2025 3:28:03 PM
+[9/28/2025 3:28:17 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59301
+Client 127.0.0.1:59301 disconnected at 9/28/2025 3:28:21 PM

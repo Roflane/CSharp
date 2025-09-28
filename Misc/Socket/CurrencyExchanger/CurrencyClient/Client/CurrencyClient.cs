@@ -13,11 +13,11 @@ public class Client {
     }
     
     public void Run() {
-        // if (!CurrencyClientChecker.CheckSemaphore()) {
-        //     Log.Red("Server system is currently unavailable.\n");
-        //     return;
-        // }
-        //
+        if (!CurrencyClientChecker.CheckSemaphore()) {
+            Log.Red("Currency system is currently unavailable.\n");
+            return;
+        }
+        
         if (!CurrencyClientChecker.CheckSocket(_socket)) {
             return;
         }
@@ -40,8 +40,13 @@ public class Client {
             
             byte[] responseBuffer = new byte[1024];
             int responseData = _socket.Receive(responseBuffer);
-            Log.Green($"Response received: {Encoding.UTF8.GetString(responseBuffer, 0, responseData)}");
-            
+            string responseString = Encoding.UTF8.GetString(responseBuffer, 0, responseData);
+            if (responseString.Contains("Invalid")) {
+                Log.Red($"Negative response got: {responseString}");
+            }
+            else {
+                Log.Green($"Response received: {responseString}");
+            }
         }
     }    
 }

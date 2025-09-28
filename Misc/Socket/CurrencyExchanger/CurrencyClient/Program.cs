@@ -1,5 +1,5 @@
 ﻿class Program {
-    static void Main(string[] args) {
+    static void Main() {
         Client client = new("127.0.0.1:4773");
         client.Run();
         

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "EmGV2SO9uLI=",
+  "dgSpecHash": "s7A2PpVQk74=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Administrator\\RiderProjects\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
+  "projectFilePath": "C:\\Users\\Administrator\\RiderProjects\\C#\\CurrencyExchanger\\CurrencyServer\\CurrencyServer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\htmlagilitypack\\1.12.3\\htmlagilitypack.1.12.3.nupkg.sha512"
   ],
