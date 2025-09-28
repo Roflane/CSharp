@@ -22,7 +22,7 @@ public class Client {
             return;
         }
         
-        Log.Blue("Example: from USD 73 to UAH\n");
+        Log.Blue("Example: USD 73 UAH\n");
         while (_socket.Connected) {
             Log.Green("\n> ");
             string? request = Console.ReadLine();

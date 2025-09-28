@@ -84,3 +84,30 @@ Sent SERVER_OK to client 127.0.0.1:59301
 Client 127.0.0.1:59301 connected at 9/28/2025 3:28:03 PM
 [9/28/2025 3:28:17 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59301
 Client 127.0.0.1:59301 disconnected at 9/28/2025 3:28:21 PM
+Sent SERVER_OK to client 127.0.0.1:59329
+Client 127.0.0.1:59329 connected at 9/28/2025 3:32:27 PM
+Sent SERVER_OK to client 127.0.0.1:59330
+Client 127.0.0.1:59330 connected at 9/28/2025 3:32:28 PM
+Sent SERVER_OK to client 127.0.0.1:59331
+Client 127.0.0.1:59331 connected at 9/28/2025 3:32:30 PM
+[9/28/2025 3:32:40 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59331
+[9/28/2025 3:32:41 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59330
+[9/28/2025 3:32:41 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59329
+[9/28/2025 3:32:52 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59329
+[9/28/2025 3:32:52 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59330
+[9/28/2025 3:32:52 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:59331
+Client 127.0.0.1:59331 disconnected at 9/28/2025 3:32:57 PM
+Client 127.0.0.1:59330 disconnected at 9/28/2025 3:32:58 PM
+Client 127.0.0.1:59329 disconnected at 9/28/2025 3:33:00 PM
+Sent SERVER_OK to client 127.0.0.1:50929
+Client 127.0.0.1:50929 connected at 9/28/2025 4:40:08 PM
+[9/28/2025 4:40:43 PM] Sent: 124.40669 Ukrainian Hryvnia to 127.0.0.1:50929
+Client 127.0.0.1:50929 disconnected at 9/28/2025 4:41:08 PM
+Sent SERVER_OK to client 127.0.0.1:50943
+Client 127.0.0.1:50943 connected at 9/28/2025 4:42:48 PM
+[9/28/2025 4:42:54 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:50943
+Sent SERVER_OK to client 127.0.0.1:50953
+Client 127.0.0.1:50953 connected at 9/28/2025 4:45:05 PM
+[9/28/2025 4:45:12 PM] Sent: 3,026.7732 Ukrainian Hryvnia to 127.0.0.1:50953
+[9/28/2025 4:45:52 PM] Sent: 57.699409 Ukrainian Hryvnia to 127.0.0.1:50953
+Client 127.0.0.1:50953 disconnected at 9/28/2025 4:46:02 PM

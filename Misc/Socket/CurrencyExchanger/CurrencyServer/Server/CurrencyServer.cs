@@ -62,17 +62,19 @@ public class Server : IDisposable {
                 byte[] buffer = new byte[1024];
                 int requestData = client.Receive(buffer);
                 
-                string requestText = Encoding.UTF8.GetString(buffer, 0, requestData);
+                string requestText = Encoding.UTF8.GetString(buffer, 0, requestData).ToUpper();
                 string[] tokens = requestText.Trim().Split(' ');
                 
-                if (tokens.Length != 5) {
-                    Log.Red($"Invalid token count: {tokens.Length} for request: '{requestText}'\n");
+                if (tokens.Length != 3) {
+                    string invalidMsg = $"Invalid token count: {tokens.Length} for request: '{requestText}'";
+                    Log.Red($"{invalidMsg}\n");
+                    client.Send(Encoding.UTF8.GetBytes(invalidMsg));
                     continue;
                 }
             
-                string from = tokens[1];
-                string amount = tokens[2];
-                string to = tokens[4];
+                string from = tokens[0];
+                string amount = tokens[1];
+                string to = tokens[2];
                     
                 try {
                     string? res = XeParser.GetResult(amount, from, to);
