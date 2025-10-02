@@ -1,0 +1,6 @@
+namespace XCloudRepo.Enums;
+
+public enum EResponseCode : long {
+    FileSizeOk = 0x73000,
+    FileSizeOverflow
+}
