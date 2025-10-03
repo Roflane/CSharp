@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using XCloudRepo.Configs;
 using XCloudRepo.Core;
 using XCloudRepo.Enums;
+using XCloudRepo.Internals;
+using XCloudRepo.ResponseHandler;
 
 namespace XCloudRepo.Server;
 
@@ -54,111 +56,76 @@ public class XCloudServer : IDisposable {
     
     private async void HandleClient(Socket client) {
         XCloudAccountCore accountManager = new();
+        XResponseHandler rh = new();
+        XCloudFunc func = new();
+        XBuffer xb = new();
         try {
             while (client.Connected) {
                 if (!accountManager.IsAuthorized) {
-                    byte[] enterBuffer = new byte[100];
-                    byte[] userDataBuffer = new byte[XRegistrationConfig.MaxLoginLength + XRegistrationConfig.MaxLoginLength];
-
-                    string enterRequest = Encoding.UTF8.GetString(enterBuffer, 0, client.Receive(enterBuffer));
-                    string userDataFormat = Encoding.UTF8.GetString(userDataBuffer, 0, client.Receive(userDataBuffer));
+                    string enterRequest = Encoding.UTF8.GetString(xb.EnterBuffer, 0, client.Receive(xb.EnterBuffer));
+                    string userDataFormat = Encoding.UTF8.GetString(xb.UserDataBuffer, 0, client.Receive(xb.UserDataBuffer));
 
                     switch (enterRequest) {
                         case XCloudServerConfig.Register:
-                            if (accountManager.RegisterUser(userDataFormat).Result) {
-                                Log.Green($"[{client.RemoteEndPoint}] User {accountManager.UserLogin} registered successfully");
-                            }
-                            else {
-                                Log.Red($"[{client.RemoteEndPoint}] User {accountManager.UserLogin} registered unsuccessfully");
-                            }
-
+                            bool registerStatus = accountManager.RegisterUser(userDataFormat).Result;
+                            PLog.Register(registerStatus, client.RemoteEndPoint!.ToString(), accountManager.UserLogin);
                             break;
                         case XCloudServerConfig.Auth:
-                            if (accountManager.AuthUser(userDataFormat).Result) {
-                                Log.Green($"[{client.RemoteEndPoint}] User {accountManager.UserLogin} authorized successfully");
-                            }
-                            else {
-                                Log.Red($"[{client.RemoteEndPoint}] User authorized unsuccessfully");
-                            }
+                            bool authStatus = accountManager.AuthUser(userDataFormat).Result;
+                            PLog.Auth(authStatus, client.RemoteEndPoint!.ToString(), accountManager.UserLogin);
                             break;
                     }
-
                     client.Send(Encoding.UTF8.GetBytes(accountManager.IsAuthorized.ToString()));
                 }
                 else {
                     XCloudCore core = new(accountManager.UserLogin);
-
-                    byte[] requestBuffer = new byte[1024];
-                    int length = client.Receive(requestBuffer);
-                    string request = Encoding.UTF8.GetString(requestBuffer, 0, length);
                     
+                    string request = Encoding.UTF8.GetString(xb.RequestBuffer, 0, client.Receive(xb.RequestBuffer));
                     switch (request) {
                         case XCloudServerConfig.DirectoryViewRoot:
-                            string[] dirs = core.DirectoryViewRoot();
-                            string json = JsonConvert.SerializeObject(dirs);
-                            await client.SendAsync(Encoding.UTF8.GetBytes(json));
-                            Log.Green("Request 'DirectoryViewRoot' accomplished.");
+                            PLog.DirectoryViewRoot(func.SerializeRootDir(client, core) > 0, 
+                                client.RemoteEndPoint!.ToString());
                             break;
                         case XCloudServerConfig.DirectoryCreate:
-                            byte[] dirCreateBuffer = new byte[1024];
-                            int incomingBufferLength = await client.ReceiveAsync(dirCreateBuffer);
-                            string incomingDirCreate = Encoding.UTF8.GetString(dirCreateBuffer, 0, incomingBufferLength);
-                            
-                            if (core.DirectoryCreate(incomingDirCreate)) {
-                                Log.Green("Request 'DirectoryCreate' succeeded.");
-                            }
-                            else Log.Red("Request 'DirectoryCreate' unsucceeded.");
+                            string dirToCreate = func.ReceiveString(client, xb.DirToCreateBuffer);
+                            PLog.DirectoryCreate(core.DirectoryCreate(dirToCreate), 
+                                client.RemoteEndPoint!.ToString(), dirToCreate);
                             break;
                         case XCloudServerConfig.DirectoryDelete:
-                            byte[] dirDeleteBuffer = new byte[1024];
-                            int dirDeleteBufferLength = await client.ReceiveAsync(dirDeleteBuffer);
-                            string dirDelete = Encoding.UTF8.GetString(dirDeleteBuffer, 0, dirDeleteBufferLength);
-                            
-                            if (core.DirectoryDelete(dirDelete)) {
-                                Log.Green($"Request 'DirectoryDelete' succeeded: {dirDelete}.");
-                            }
-                            else Log.Red($"Request 'DirectoryDelete' unsucceeded: {dirDelete}.");
+                            string dirDelete = func.ReceiveString(client, xb.DirToDeleteBuffer);
+                            PLog.DirectoryDelete(core.DirectoryDelete(dirDelete), 
+                                client.RemoteEndPoint!.ToString(), dirDelete);
                             break;
                         case XCloudServerConfig.DirectoryRename:
-                            byte[] oldDirBuffer = new byte[260];
-                            byte[] newDirBuffer = new byte[260];
-                            
-                            string oldDir = Encoding.UTF8.GetString(oldDirBuffer, 0, client.Receive(oldDirBuffer));
-                            string newDir = Encoding.UTF8.GetString(newDirBuffer, 0, client.Receive(newDirBuffer));
-                            if (oldDir.Length == 0 || newDir.Length == 0) Log.Green("Request 'DirectoryRename' unsucceeded: invalid length.");
-                            
-                            
-                            
-                            if (core.DirectoryRename(oldDir, newDir)) {
-                                Log.Green("Request 'DirectoryRename' succeeded.");
-                            }
-                            else Log.Red("Request 'DirectoryRename' unsucceeded.");
+                            string oldDir = func.ReceiveString(client, xb.OldDirBuffer);
+                            string newDir = func.ReceiveString(client, xb.NewDirBuffer);
+                            PLog.DirectoryRename(core.DirectoryRename(oldDir, newDir), client.RemoteEndPoint!.ToString(), oldDir, newDir);
                             break;
                         case XCloudServerConfig.FileUpload:
-                            Log.Green("'FileUpload'.\n");
-                            
-                            byte[] dirToUploadBuffer = new byte[260];
-                            byte[] fileNameBuffer = new byte[100];
-                            byte[] fileSizeBuffer = new byte[100];
-                            
-                            string dirToUpload = Encoding.UTF8.GetString(dirToUploadBuffer, 0, client.Receive(dirToUploadBuffer));
-                            string fileName = Encoding.UTF8.GetString(fileNameBuffer, 0, client.Receive(fileNameBuffer));
-                            int fileSize = int.Parse(Encoding.UTF8.GetString(fileSizeBuffer, 0, client.Receive(fileSizeBuffer)));
-                            if (fileSize > XCloudServerConfig.MaxFileBufferSize) {
-                                client.Send(Encoding.UTF8.GetBytes($"{EResponseCode.FileSizeOverflow}"));
+                            string dirToUpload = func.ReceiveString(client, xb.DirToUploadBuffer);
+                            if (!rh.DirectoryExistance(core, dirToUpload, client,
+                                    () => { Log.Red("Directory doesn't exist."); })) {
                                 continue;
-                            } 
-                            client.Send(Encoding.UTF8.GetBytes($"{EResponseCode.FileSizeOk}"));
-                            
-                            byte[] fileToUploadBuffer = new byte[fileSize];
-                            client.Receive(fileToUploadBuffer);
-    
-                            if (core.FileUpload(dirToUpload, fileName, fileToUploadBuffer).Result) {
-                                Log.Green("Request 'FileUpload' succeeded.");
                             }
-                            else Log.Red("Request 'FileUpload' unsucceeded.");
+                            
+                            string fileName = func.ReceiveString(client, xb.FileNameBuffer);
+                            if (fileName == XReservedData.InvalidName) continue;
+
+                            client.Receive(xb.FileSizeBuffer);
+                            long fileSize = BitConverter.ToInt64(xb.FileSizeBuffer, 0);
+                            if (!rh.FileSize(fileSize, client,
+                                    () => { Log.Red("File size overflow."); })) {
+                                continue;
+                            }
+
+                            xb.ExpandFileToUploadBuffer(fileSize);
+                            client.Receive(xb.FileToUploadBuffer);
+                            PLog.FileUpload(core.FileUpload(dirToUpload, fileName, xb.FileToUploadBuffer).Result, 
+                                client.RemoteEndPoint!.ToString(), fileName);
                             break;
                         case XCloudServerConfig.FileDelete:
+                            
+                            
                             // if (core.FileDelete(incomingData)) {
                             //     Log.Green("Request 'FileDelete' succeeded.");
                             // }
@@ -170,7 +137,6 @@ public class XCloudServer : IDisposable {
                             //     Log.Green("Request 'FileRename' succeeded.");
                             // }
                             // else Log.Red("Request 'FileRename' unsucceeded.");
-
                             break;
                     }
                 }

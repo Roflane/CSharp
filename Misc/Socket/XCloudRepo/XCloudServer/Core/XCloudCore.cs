@@ -1,6 +1,10 @@
 public class XCloudCore(string login) {
     private readonly string _rootDir = $"Users/{login}";
-    
+
+    public bool DirectoryExists(string folder) {
+        return Directory.Exists($"{_rootDir}/{folder}");
+    }
+
     public string[] DirectoryViewRoot() {
         if (string.IsNullOrEmpty(login)) return [];
         string[] dirs = Directory.GetDirectories(_rootDir);
@@ -42,9 +46,8 @@ public class XCloudCore(string login) {
             string targetDir = $"{_rootDir}/{dir}/{fileName}";
 
             string? directory = Path.GetDirectoryName(targetDir);
-            if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory)) {
+            if (string.IsNullOrEmpty(directory)) 
                 return false;
-            }
             
             await File.WriteAllBytesAsync(targetDir, fileBuffer);
             return true;

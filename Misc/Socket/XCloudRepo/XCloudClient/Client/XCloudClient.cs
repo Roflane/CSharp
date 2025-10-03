@@ -4,8 +4,10 @@ using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
 using XCloudClient.Configs;
+using XCloudClient.Core;
 using XCloudClient.Data;
 using XCloudClient.Enums;
+using XCloudClient.Internals;
 using XCloudClient.Menu;
 using XCloudClient.User;
 
@@ -14,15 +16,21 @@ namespace XCloudClient.Client;
 public class XCloudClient {
     private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private readonly UserData _userData = new();
-    private XCloudData _cloudData = new();
+    private readonly XCloudData _cloudData = new();
     
     public XCloudClient(string ipPort) {
+        EstablishConnection(ipPort);
+    }
+
+    private void EstablishConnection(string ipPort) {
         var ep = IPEndPoint.Parse(ipPort);
         _socket.Connect(ep);
     }
 
     [DoesNotReturn]
     public void Run() {
+        XCloudFunc func = new();
+        XBuffer xb = new();
         while (true) {
             if (!_userData.IsAuthorized) {
                 XMenu.PrintEnterOptions();
@@ -55,16 +63,11 @@ public class XCloudClient {
                     Log.Green($"Welcome to XCloud, {_userData.IsAuthorized}!\n");
                     _userData.IsAuthorized = true;
                 }
-                else {
-                    Console.Clear();
-                    continue;
-                }
+                else Console.Clear();
             }
             else {
                 Console.Clear();
                 XMenu.PrintCloudOptions();
-                
-                //_cloudData.TryPrintLastDirs();
 
                 Log.Green("\nEnter option: ");
                 string option = Console.ReadLine()!;
@@ -74,70 +77,67 @@ public class XCloudClient {
                 
                 switch (option) {
                     case XCloudClientConfig.DirectoryViewRoot: 
-                        int dirViewRootData = _socket.Receive(buffer);
-                        string[]? dirs = JsonConvert.DeserializeObject<string[]>(Encoding.UTF8.GetString(buffer, 0, dirViewRootData));
-                        if (dirs!.Length == 0) {
-                            Log.Red("No dirs found.\n");
-                            continue;
-                        }
-                        
-                        _cloudData.LastDirs = dirs;
-                        foreach (var dir in dirs) {
+                        string[]? dirs = func.DeserializeRootDir(buffer, _socket);
+                        foreach (var dir in dirs!) {
                             Log.Blue($"{dir.Replace(@"\", "/")}\n");
                         }
-
-                        Console.ReadLine();
-                        Log.Blue("Enter any key to skip.");
+                        Log.Blue("Enter any key to continue.", true);
                         break;
                     case XCloudClientConfig.DirectoryCreate:
-                        string newDir = Console.ReadLine()!;
-                        _socket.Send(Encoding.UTF8.GetBytes(newDir));
+                        Log.Green("Enter remote directory to create: ");
+                        _socket.Send(Encoding.UTF8.GetBytes(Console.ReadLine()!));
                         break;
                     case XCloudClientConfig.DirectoryDelete:
-                        string dirToDelete = Console.ReadLine()!;
-                        _socket.Send(Encoding.UTF8.GetBytes(dirToDelete));
+                        Log.Green("Enter remote directory to delete: ");
+                        _socket.Send(Encoding.UTF8.GetBytes(Console.ReadLine()!));
                         break;
                     case XCloudClientConfig.DirectoryRename:
                         Log.Green("Enter current directory name: ");
-                        string oldDirName = Console.ReadLine()!;
+                        _socket.Send(Encoding.UTF8.GetBytes(Console.ReadLine()!));
                         
                         Log.Green("Enter new directory name: ");
-                        string newDirName = Console.ReadLine()!;
-                        
-                        _socket.Send(Encoding.UTF8.GetBytes(oldDirName));
-                        _socket.Send(Encoding.UTF8.GetBytes(newDirName));
+                        _socket.Send(Encoding.UTF8.GetBytes(Console.ReadLine()!));
                         break;
                     case XCloudClientConfig.FileUpload:
-                        Log.Green("Enter target directory on server: ");
+                        Log.Green("Enter remote directory to upload a file: ");
                         string remoteDir = Console.ReadLine()!;
                         _socket.Send(Encoding.UTF8.GetBytes(remoteDir));
+
+                        _socket.Receive(xb.StatusBuffer);
+                        EResponseCode remoteDirStatus = (EResponseCode)BitConverter.ToInt64(xb.StatusBuffer, 0);
+                        if (remoteDirStatus == EResponseCode.DirNotExists) {
+                            Log.Red($"Remote directory '{remoteDir}' doesn't exist.\nPress any key to continue", true);
+                            continue;
+                        }
 
                         Log.Green("Enter file path to upload: ");
                         string myDir = Console.ReadLine()!;
 
-                        byte[] statusBuffer = new byte[100];
-                        
                         try {
                             FileInfo fi = new FileInfo(myDir);
-                            
-                            _socket.Send(Encoding.UTF8.GetBytes(fi.Name));
-                            _socket.Send(Encoding.UTF8.GetBytes(fi.Length.ToString()));
-                            
-                            EResponseCode status = (EResponseCode)long.Parse(Encoding.UTF8.GetString(statusBuffer, 0, _socket.Receive(statusBuffer)));
+
+                            if (fi.Exists) _socket.Send(Encoding.UTF8.GetBytes(fi.Name));
+                            else {
+                                _socket.Send(Encoding.UTF8.GetBytes(XReservedData.InvalidName));
+                                Log.Red("File doesn't exist.\nPress any key to continue", true);
+                                continue;
+                            }
+                            _socket.Send(BitConverter.GetBytes(fi.Length));
+          
+                            _socket.Receive(xb.StatusBuffer);
+                            EResponseCode status = (EResponseCode)BitConverter.ToInt64(xb.StatusBuffer, 0);
                             switch (status) {
                                 case EResponseCode.FileSizeOk:
                                     _socket.Send(File.ReadAllBytes(myDir));
-                                    Log.Green("File upload request sent.\nPress any key to continue");
-                                    Console.ReadLine();
+                                    Log.Green("File upload request sent.\nPress any key to continue", true);
                                     break;
                                 case EResponseCode.FileSizeOverflow:
-                                    Log.Red("Response: file size overflow.\nPress any key to continue");
-                                    Console.ReadLine();
+                                    Log.Red("Response: file size overflow.\nPress any key to continue", true);
                                     break;
                             }
                         }
                         catch (Exception ex) {
-                            Log.Red($"{ex.Message}\n");
+                            Log.Red($"Error: {ex.Message}");
                         }
                         break;
                 }

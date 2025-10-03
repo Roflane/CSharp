@@ -1,10 +1,8 @@
 namespace XCloudRepo.Configs;
 
 public static class XCloudServerConfig {
-    public const int GenericBufferSize = 1024;
     public const int MaxFileBufferSize = 1024 * 100 * 1024;
     
-    public const string Reserved = "||||";
     public const string Register = "Register";
     public const string Auth = "Auth";
     
