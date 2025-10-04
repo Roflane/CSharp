@@ -102,38 +102,21 @@ public class XCloudClient {
                         string remoteDir = Console.ReadLine()!;
                         _socket.Send(Encoding.UTF8.GetBytes(remoteDir));
 
-                        _socket.Receive(xb.StatusBuffer);
-                        EResponseCode remoteDirStatus = (EResponseCode)BitConverter.ToInt64(xb.StatusBuffer, 0);
-                        if (remoteDirStatus == EResponseCode.DirNotExists) {
-                            Log.Red($"Remote directory '{remoteDir}' doesn't exist.\nPress any key to continue", true);
-                            continue;
-                        }
+                        EResponseCode remoteDirStatus = func.ReceiveData(xb.StatusBuffer);
+                        if (remoteDirStatus == EResponseCode.DirNotExists) continue;
 
                         Log.Green("Enter file path to upload: ");
                         string myDir = Console.ReadLine()!;
 
                         try {
                             FileInfo fi = new FileInfo(myDir);
-
-                            if (fi.Exists) _socket.Send(Encoding.UTF8.GetBytes(fi.Name));
-                            else {
-                                _socket.Send(Encoding.UTF8.GetBytes(XReservedData.InvalidName));
-                                Log.Red("File doesn't exist.\nPress any key to continue", true);
-                                continue;
-                            }
+                            if (!rh.LocalFileExistence(fi.Exists, fi.Name, () => {
+                                    Log.Red("File doesn't exist\nPress any key to continue", true);
+                                })) continue;
                             _socket.Send(BitConverter.GetBytes(fi.Length));
-          
-                            _socket.Receive(xb.StatusBuffer);
-                            EResponseCode status = (EResponseCode)BitConverter.ToInt64(xb.StatusBuffer, 0);
-                            switch (status) {
-                                case EResponseCode.FileSizeOk:
-                                    _socket.Send(File.ReadAllBytes(myDir));
-                                    Log.Green("File upload request sent.\nPress any key to continue", true);
-                                    break;
-                                case EResponseCode.FileSizeOverflow:
-                                    Log.Red("Response: file size overflow.\nPress any key to continue", true);
-                                    break;
-                            }
+                            
+                            EResponseCode status = func.ReceiveData(xb.StatusBuffer);
+                            if (!rh.FileSize(status, myDir, () => PLog.FileSize(status))) continue;
                         }
                         catch (Exception ex) {
                             Log.Red($"Error: {ex.Message}");
