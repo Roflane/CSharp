@@ -5,7 +5,7 @@ using XCloudRepo.Enums;
 namespace XCloudRepo.ResponseHandler;
 
 public class XResponseHandler {
-    public bool DirectoryExistance(XCloudCore core, string dir, Socket client, Action log) {
+    public bool DirectoryExistence(XCloudCore core, string dir, Socket client, Action log) {
         if (!core.DirectoryExists(dir)) {
             log.Invoke();
             client.Send(BitConverter.GetBytes((long)EResponseCode.DirNotExists));
@@ -24,4 +24,14 @@ public class XResponseHandler {
         client.Send(BitConverter.GetBytes((long)EResponseCode.FileSizeOk));
         return true;
     }
+
+    // public bool FileName(string fileName, Socket client, Action log) {
+    //     if (fileName == XReservedData.InvalidName) {
+    //         log.Invoke();
+    //         client.Send(BitConverter.GetBytes((long)EResponseCode.FileNotExists));
+    //         return false;
+    //     }
+    //     client.Send(BitConverter.GetBytes((long)EResponseCode.FileExists));
+    //     return true;
+    // }
 }

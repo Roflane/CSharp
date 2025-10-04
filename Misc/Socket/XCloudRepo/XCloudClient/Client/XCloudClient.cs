@@ -2,13 +2,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Newtonsoft.Json;
 using XCloudClient.Configs;
 using XCloudClient.Core;
 using XCloudClient.Data;
 using XCloudClient.Enums;
 using XCloudClient.Internals;
 using XCloudClient.Menu;
+using XCloudClient.ResponseHandler;
 using XCloudClient.User;
 
 namespace XCloudClient.Client;
@@ -28,8 +28,9 @@ public class XCloudClient {
     }
 
     [DoesNotReturn]
-    public void Run() {
-        XCloudFunc func = new();
+    public async void Run() {
+        XResponseHandler rh = new(_socket);
+        XCloudFunc func = new(_socket);
         XBuffer xb = new();
         while (true) {
             if (!_userData.IsAuthorized) {
@@ -55,10 +56,9 @@ public class XCloudClient {
 
                 string combinedData = $"{login}:{password}";
                 _socket.Send(Encoding.UTF8.GetBytes(combinedData));
-
-                byte[] enterStatusBuffer = new byte[5];
-                int enterStatusData = _socket.Receive(enterStatusBuffer);
-                string enterStatus = Encoding.UTF8.GetString(enterStatusBuffer, 0, enterStatusData);
+                
+                int enterStatusData = _socket.Receive(xb.EnterStatusBuffer);
+                string enterStatus = Encoding.UTF8.GetString(xb.EnterStatusBuffer, 0, enterStatusData);
                 if (enterStatus == "True") {
                     Log.Green($"Welcome to XCloud, {_userData.IsAuthorized}!\n");
                     _userData.IsAuthorized = true;
@@ -77,8 +77,7 @@ public class XCloudClient {
                 
                 switch (option) {
                     case XCloudClientConfig.DirectoryViewRoot: 
-                        string[]? dirs = func.DeserializeRootDir(buffer, _socket);
-                        foreach (var dir in dirs!) {
+                        foreach (var dir in func.DeserializeRootDir(buffer)) {
                             Log.Blue($"{dir.Replace(@"\", "/")}\n");
                         }
                         Log.Blue("Enter any key to continue.", true);
@@ -99,7 +98,7 @@ public class XCloudClient {
                         _socket.Send(Encoding.UTF8.GetBytes(Console.ReadLine()!));
                         break;
                     case XCloudClientConfig.FileUpload:
-                        Log.Green("Enter remote directory to upload a file: ");
+                         Log.Green("Enter remote directory to upload a file: ");
                         string remoteDir = Console.ReadLine()!;
                         _socket.Send(Encoding.UTF8.GetBytes(remoteDir));
 
@@ -139,6 +138,28 @@ public class XCloudClient {
                         catch (Exception ex) {
                             Log.Red($"Error: {ex.Message}");
                         }
+                        break;
+                    case XCloudClientConfig.FileDownload:
+                        Log.Green("Enter remote directory to download a file: ");
+                        string remoteFile = Console.ReadLine()!;
+                        _socket.Send(Encoding.UTF8.GetBytes(remoteFile));
+                    
+                        EResponseCode remoteFileStatus = func.ReceiveData(xb.StatusBuffer);
+                        if (remoteFileStatus != EResponseCode.FileExists) continue;
+                        
+                        string remoteFileName = func.ReceiveString(xb.RemoteFileNameBuffer);
+                        long remoteFileSize = func.ReceiveLong(new byte[sizeof(long)]);
+
+
+                        xb.RemoteFileBuffer = new byte[remoteFileSize];
+                        _socket.Receive(xb.RemoteFileBuffer);
+                        
+                        Log.Green("Enter desired directory: ");
+                        string localDir = Console.ReadLine()!;
+
+                        if (XCloudClientCore.CreateFile(localDir, remoteFileName, xb.RemoteFileBuffer).Result) {
+                            Log.Green("File download success.", true);
+                        } else Log.Red("File download unsuccess.", true);
                         break;
                 }
             }

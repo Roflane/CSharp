@@ -2,7 +2,6 @@ using System.Net;
 using System.Text;
 using System.Net.Sockets;
 using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
 using XCloudRepo.Configs;
 using XCloudRepo.Core;
 using XCloudRepo.Enums;
@@ -75,7 +74,7 @@ public class XCloudServer : IDisposable {
                             PLog.Auth(authStatus, client.RemoteEndPoint!.ToString(), accountManager.UserLogin);
                             break;
                     }
-                    client.Send(Encoding.UTF8.GetBytes(accountManager.IsAuthorized.ToString()));
+                    func.SendAccountStatus(client, accountManager.IsAuthorized);
                 }
                 else {
                     XCloudCore core = new(accountManager.UserLogin);
@@ -103,46 +102,61 @@ public class XCloudServer : IDisposable {
                             break;
                         case XCloudServerConfig.FileUpload:
                             string dirToUpload = func.ReceiveString(client, xb.DirToUploadBuffer);
-                            if (!rh.DirectoryExistance(core, dirToUpload, client,
+                            if (!rh.DirectoryExistence(core, dirToUpload, client,
                                     () => { Log.Red("Directory doesn't exist."); })) {
                                 continue;
                             }
                             
                             string fileName = func.ReceiveString(client, xb.FileNameBuffer);
                             if (fileName == XReservedData.InvalidName) continue;
-
-                            client.Receive(xb.FileSizeBuffer);
-                            long fileSize = BitConverter.ToInt64(xb.FileSizeBuffer, 0);
+                            
+                            long fileSize = func.ReceiveLong(client, xb.FileSizeBuffer);
                             if (!rh.FileSize(fileSize, client,
                                     () => { Log.Red("File size overflow."); })) {
                                 continue;
                             }
 
-                            xb.ExpandFileToUploadBuffer(fileSize);
+                            xb.FileToUploadBuffer = new byte[fileSize];
                             client.Receive(xb.FileToUploadBuffer);
                             PLog.FileUpload(core.FileUpload(dirToUpload, fileName, xb.FileToUploadBuffer).Result, 
                                 client.RemoteEndPoint!.ToString(), fileName);
                             break;
-                        case XCloudServerConfig.FileDelete:
+                        case XCloudServerConfig.FileDownload:
+                            string fileToDownload = $"{core.RootDir}/{func.ReceiveString(client, xb.FileToDownloadBuffer)}";
+                            if (!File.Exists(fileToDownload)) {
+                                client.Send(BitConverter.GetBytes((long)EResponseCode.FileNotExists));
+                                continue;
+                            } 
+                            client.Send(BitConverter.GetBytes((long)EResponseCode.FileExists));
                             
-                            
-                            // if (core.FileDelete(incomingData)) {
-                            //     Log.Green("Request 'FileDelete' succeeded.");
-                            // }
-                            // else Log.Red("Request 'FileDelete' unsucceeded.");
-
+                            FileInfo fi = new FileInfo(fileToDownload);
+                            client.Send(Encoding.UTF8.GetBytes(fi.Name));
+                            client.Send(BitConverter.GetBytes(fi.Length));
+                            client.Send(File.ReadAllBytes(fileToDownload));
+                            Log.Green("File download done");
                             break;
-                        case XCloudServerConfig.FileRename:
-                            // if (core.FileRename(dirParts[0], dirParts[1])) {
-                            //     Log.Green("Request 'FileRename' succeeded.");
-                            // }
-                            // else Log.Red("Request 'FileRename' unsucceeded.");
-                            break;
+                        // case XCloudServerConfig.FileDelete:
+                        //     
+                        //     
+                        //     // if (core.FileDelete(incomingData)) {
+                        //     //     Log.Green("Request 'FileDelete' succeeded.");
+                        //     // }
+                        //     // else Log.Red("Request 'FileDelete' unsucceeded.");
+                        //
+                        //     break;
+                        // case XCloudServerConfig.FileRename:
+                        //     // if (core.FileRename(dirParts[0], dirParts[1])) {
+                        //     //     Log.Green("Request 'FileRename' succeeded.");
+                        //     // }
+                        //     // else Log.Red("Request 'FileRename' unsucceeded.");
+                        //     break;
                     }
                 }
             }
         }
-        catch {}
+        catch {
+            // ignored
+        }
         finally {
             string clientLog = $"Client {client.RemoteEndPoint} disconnected at {DateTime.Now}";
             Log.Red($"[{DateTime.Now}] {clientLog}\n");

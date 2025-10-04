@@ -17,6 +17,7 @@ public static class XMenu {
                  ※Delete Directory (dc)
                  ※Rename Directory (dr)
                  ※Upload File (fu)
+                 ※Download File (fd)
                  """ + "\n");
     }
 }

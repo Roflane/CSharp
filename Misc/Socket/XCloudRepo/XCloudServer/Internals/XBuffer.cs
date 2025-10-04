@@ -16,11 +16,9 @@ public class XBuffer {
     public byte[] DirToCreateBuffer { get; set; } = new byte[260];
     public byte[] DirToDeleteBuffer { get; set; } = new byte[260];
     public byte[] DirToUploadBuffer { get; set; } = new byte[260];
+    public byte[] FileToUploadBuffer { get; set; } = [];
+    public byte[] FileToDownloadBuffer { get; set; } = new byte[260];
     
-    public byte[] FileToUploadBuffer { get; set; }
-
-    public byte[] ExpandFileToUploadBuffer(long fileSize) {
-        return FileToUploadBuffer = new byte[fileSize];
-    }
+    public byte[] fileBufferToSend { get; set; } = [];
     
 }
