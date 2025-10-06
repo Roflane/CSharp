@@ -1,11 +1,9 @@
 ﻿using XCloudRepo.Server;
 
 class Program {
-    static void Main() {
-        XCloudServer server = new("192.168.31.121:4773");
-        server.BeginListening();
-        
-        AutoResetEvent wait = new(false);
-        wait.WaitOne();
+    static async Task Main() {
+        XCloudServer server = new("192.168.31.121:4773"); 
+        Console.Title = $"[{server.Ip}:{server.Port}] XCloud server";
+        await server.BeginListening();
     }
 }

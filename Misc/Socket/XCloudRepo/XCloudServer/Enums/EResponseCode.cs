@@ -7,4 +7,6 @@ public enum EResponseCode : long {
     DirNotExists,
     FileExists,
     FileNotExists,
+    FileTransferComplete,
+    FileTransferFailed
 }

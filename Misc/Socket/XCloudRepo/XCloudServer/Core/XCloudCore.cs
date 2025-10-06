@@ -2,7 +2,7 @@ public class XCloudCore(string login) {
     public string RootDir => $"C:/XCloud/{login}/";
     
     public bool DirectoryExists(string folder) {
-        return Directory.Exists($"{RootDir}/{folder}");
+        return Directory.Exists(Path.Combine(RootDir, folder));
     }
 
     public string[] DirectoryViewRoot() {
@@ -11,7 +11,7 @@ public class XCloudCore(string login) {
     }
     
     public bool DirectoryCreate(string dir) {
-        string targetDir = $"{RootDir}/{dir}";
+        string targetDir = Path.Combine(RootDir, dir);
         
         if (string.IsNullOrEmpty(dir) || 
             Directory.Exists(targetDir)) return false;
@@ -21,7 +21,7 @@ public class XCloudCore(string login) {
     }
     
     public bool DirectoryDelete(string dir) {
-        string targetDir = $"{RootDir}/{dir}";
+        string targetDir = Path.Combine(RootDir, dir);
         
         if (string.IsNullOrEmpty(dir) || 
             !Directory.Exists(targetDir)) return false;
@@ -31,7 +31,7 @@ public class XCloudCore(string login) {
     }
     
     public bool DirectoryRename(string dir, string newDirName) {
-        string targetDir =  $"{RootDir}/{dir}";
+        string targetDir = Path.Combine(RootDir, dir);
         
         if (string.IsNullOrEmpty(dir) || 
             !Directory.Exists(targetDir)) return false;
@@ -42,7 +42,7 @@ public class XCloudCore(string login) {
     
     public async Task<bool> FileUpload(string dir, string fileName, byte[] fileBuffer) {
         try {
-            string targetDir = $"{RootDir}/{dir}/{fileName}";
+            string targetDir = Path.Combine(RootDir, dir, fileName);
 
             string? directory = Path.GetDirectoryName(targetDir);
             if (string.IsNullOrEmpty(directory)) 
@@ -56,7 +56,7 @@ public class XCloudCore(string login) {
     
     public async Task<bool> FileDownload(string dir, byte[] fileBuffer) {
         try {
-            string targetDir = $"{RootDir}/{dir}";
+            string targetDir = Path.Combine(RootDir, dir);
             string? directory = Path.GetDirectoryName(targetDir);
             if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory)) {
                 return false;
@@ -68,23 +68,46 @@ public class XCloudCore(string login) {
         catch { return false; }
     }
     
-    public bool FileDelete(string dir) {
-        string targetDir = $"{RootDir}/{dir}";
+    public async Task<bool> FileDelete(string dir) {
+        string targetDir = Path.Combine(RootDir, dir);
         
         if (string.IsNullOrEmpty(targetDir) || 
-            !Directory.Exists(dir)) return false;
+            !File.Exists(dir)) return false;
 
-        File.Delete(targetDir);
+        await Task.Run(() => File.Delete(dir)); 
         return true;
     }
 
-    public bool FileRename(string dir, string newDir) {
-        string targetDir = $"{RootDir}/{dir}";
-        
-        if (string.IsNullOrEmpty(targetDir) || 
-            !Directory.Exists(dir)) return false;
+    public async Task<bool> FileRename(string oldPath, string newPath) {
+        string targetOldPath = Path.Combine(RootDir, oldPath);
+        string targetNewPath = Path.Combine(RootDir, newPath);
 
-        File.Move(dir, newDir);
+        if (string.IsNullOrEmpty(targetOldPath) || 
+            !File.Exists(targetOldPath)) return false;
+
+        await Task.Run(() => File.Move(targetOldPath, targetNewPath));
         return true;
-    } 
+    }
+
+    public async Task<bool> FileCopy(string dir) {
+        int n = 0;
+        string file = Path.Combine(RootDir, dir);
+
+        string directory = Path.GetDirectoryName(file)!;
+        if (string.IsNullOrEmpty(directory)) return false;
+        
+        string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+        string extension = Path.GetExtension(file);
+
+        string newFilePath = file;
+        
+        while (File.Exists(newFilePath)) {
+            n++;
+            string newFileName = $"{fileNameWithoutExt} Copy ({n}){extension}";
+            newFilePath = Path.Combine(directory, newFileName);
+        } 
+        
+        File.Copy(file, newFilePath);
+        return true;
+    }
 }

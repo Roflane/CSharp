@@ -14,10 +14,13 @@ public static class XMenu {
                  ---Options---
                  ※View Root Directory (dvr)
                  ※Create Directory (dc)
-                 ※Delete Directory (dc)
+                 ※Delete Directory (dd)
                  ※Rename Directory (dr)
                  ※Upload File (fu)
                  ※Download File (fd)
+                 ※Delete File (frm)
+                 ※Rename File (fr)
+                 ※Copy File (fc)
                  """ + "\n");
     }
 }
