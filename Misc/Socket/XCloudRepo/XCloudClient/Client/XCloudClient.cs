@@ -11,22 +11,28 @@ using XCloudClient.User;
 
 namespace XCloudClient.Client;
 
-public class XCloudClient {
+public class XCloudClient : IDisposable {
     private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    private readonly IPEndPoint _ep;
+    private IPEndPoint? _ep;
+    
     private readonly UserData _userData = new();
     
-    public string Ip => _ep.Address.ToString();
-    public string Port => _ep.Port.ToString();
+    public string Ip => _ep!.Address.ToString();
+    public string Port => _ep!.Port.ToString();
     
     public XCloudClient(string ipPort) {
-        _ep = IPEndPoint.Parse(ipPort);
-        EstablishConnection(ipPort);
+        TryInitializeClient(ipPort);
     }
 
-    private void EstablishConnection(string ipPort) {
-        var ep = IPEndPoint.Parse(ipPort);
-        _socket.Connect(ep);
+    private void TryInitializeClient(string ipPort) {
+        try {
+            _ep = IPEndPoint.Parse(ipPort);
+            _socket.Connect(_ep);
+        }
+        catch (Exception ex) {
+            Log.Red(ex.Message, true);
+            Environment.Exit(1);
+        }
     }
     
     [DoesNotReturn]
@@ -64,10 +70,20 @@ public class XCloudClient {
                         await clientLogicCoreImpl.RenameDirectoryAsync();
                         break;
                     case XCloudClientConfig.FileUpload:
-                        await clientLogicCoreImpl.UploadFileAsync();
+                        try {
+                            clientLogicCoreImpl.UploadFile();
+                        }
+                        catch (Exception ex) {
+                            Log.Red(ex.Message, true);
+                        }
                         break;
                     case XCloudClientConfig.FileDownload:
-                        await clientLogicCoreImpl.DownloadFileAsync();
+                        try {
+                            clientLogicCoreImpl.DownloadFile();
+                        }
+                        catch (Exception ex) {
+                            Log.Red(ex.Message, true);
+                        }
                         break;
                     case XCloudClientConfig.FileDelete:
                         await clientLogicCoreImpl.DeleteFileAsync();
@@ -81,5 +97,9 @@ public class XCloudClient {
                 }
             }
         }
+    }
+
+    public void Dispose() {
+        _socket.Dispose();
     }
 }

@@ -1,3 +1,5 @@
+namespace XCloudRepo.Core;
+
 public class XCloudCore(string login) {
     public string RootDir => $"C:/XCloud/{login}/";
     
@@ -40,15 +42,15 @@ public class XCloudCore(string login) {
         return true;
     }
     
-    public async Task<bool> FileUpload(string dir, string fileName, byte[] fileBuffer) {
+    public bool FileUpload(string dir, string fileName, byte[] fileBuffer) {
         try {
             string targetDir = Path.Combine(RootDir, dir, fileName);
 
             string? directory = Path.GetDirectoryName(targetDir);
             if (string.IsNullOrEmpty(directory)) 
                 return false;
-            
-            await File.WriteAllBytesAsync(targetDir, fileBuffer);
+
+            File.WriteAllBytes(targetDir, fileBuffer);
             return true;
         }
         catch { return false; }
@@ -100,12 +102,14 @@ public class XCloudCore(string login) {
         string extension = Path.GetExtension(file);
 
         string newFilePath = file;
-        
-        while (File.Exists(newFilePath)) {
-            n++;
-            string newFileName = $"{fileNameWithoutExt} Copy ({n}){extension}";
-            newFilePath = Path.Combine(directory, newFileName);
-        } 
+
+        await Task.Run(() => {
+            while (File.Exists(newFilePath)) {
+                n++;
+                string newFileName = $"{fileNameWithoutExt} Copy ({n}){extension}";
+                newFilePath = Path.Combine(directory, newFileName);
+            } 
+        });
         
         File.Copy(file, newFilePath);
         return true;

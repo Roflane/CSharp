@@ -16,7 +16,7 @@ public class XResponseHandler(Socket socket) {
         return true;
     }
     
-    public bool LocalFileExistence(bool status, string name, Action log) {
+    public bool LocalFileExists(bool status, string name, Action log) {
         if (!status)  {
             socket.Send(Encoding.UTF8.GetBytes(XReservedData.InvalidName));
             log.Invoke();
@@ -27,14 +27,11 @@ public class XResponseHandler(Socket socket) {
     }
 
     public bool FileSize(EResponseCode status, string fileDir, Action log) {
-        switch (status) {
-            case EResponseCode.FileSizeOk:
-                socket.Send(File.ReadAllBytesAsync(fileDir).Result);
-                return false;
-        } 
+        if (status == EResponseCode.FileSizeOverflow) {
+            socket.Send(BitConverter.GetBytes((long)EResponseCode.FileSizeOverflow));
+            return false;
+        }
         log.Invoke();
         return true;
     }
-    
-    
 }

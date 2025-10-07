@@ -11,18 +11,28 @@ namespace XCloudRepo.Server;
 
 public class XCloudServer : IDisposable {
     private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    private readonly IPEndPoint _ep;
+    private IPEndPoint _ep = null!;
     
     public string Ip => _ep.Address.ToString();
     public string Port => _ep.Port.ToString();
     
     public XCloudServer(string ipPort) {
-        _ep = IPEndPoint.Parse(ipPort);
-        _socket.Bind(_ep);
-        _socket.Listen();
+        TryInitializeServer(ipPort);
         PrintInfo();
     }
 
+    private void TryInitializeServer(string ipPort) {
+        try {
+            _ep = IPEndPoint.Parse(ipPort);
+            _socket.Bind(_ep);
+            _socket.Listen();
+        }
+        catch (Exception ex) {
+            Log.Red(ex.Message, true);
+            Environment.Exit(1);
+        }
+    }
+    
     private void PrintInfo() {
         Log.Red($"""
                  _____________________________________
@@ -33,7 +43,6 @@ public class XCloudServer : IDisposable {
                  """);
     } 
     
-    [DoesNotReturn]
     public async Task BeginListening() {
         var listener = Task.Run(async () => {
             Log.Blue("Waiting for client...");
@@ -99,10 +108,10 @@ public class XCloudServer : IDisposable {
                             await serverCoreLogicImpl.RenameDirectoryAsync(core);
                             break;
                         case XCloudServerConfig.FileUpload:
-                            await serverCoreLogicImpl.UploadFileAsync(core);
+                            serverCoreLogicImpl.UploadFile(core);
                             break;
                         case XCloudServerConfig.FileDownload:
-                            try { await serverCoreLogicImpl.DownloadFileAsync(core); }
+                            try { serverCoreLogicImpl.DownloadFile(core); }
                             catch (Exception ex) {
                                 Log.Red(ex.Message);
                             }

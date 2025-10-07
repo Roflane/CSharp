@@ -45,56 +45,64 @@ public class XServerLogicCore(Socket client, XCloudFunc func, XBuffer xb, XRespo
         return true;
     }
 
-    public async Task<bool> UploadFileAsync(XCloudCore core) {
-        string dirToUpload = await func.ReceiveStringAsync(client, xb.DirToUploadBuffer);
-        if (!rh.DirectoryExistence(core, dirToUpload, client,
-                () => { Log.Red("Directory doesn't exist."); })) {
+
+    public bool UploadFile(XCloudCore core) {
+        string cloudDir = func.ReceiveString(client, xb.DirToUploadBuffer);
+        if (!rh.DirectoryExists(core, cloudDir, client,
+                () => { Log.Red("Directory doesn't exist."); })) 
             return false;
-        }
                             
-        string fileName = await func.ReceiveStringAsync(client, xb.FileNameBuffer);
+        string fileName = func.ReceiveString(client, xb.FileNameBuffer);
         if (fileName == XReservedData.InvalidName) return false;
                             
         long fileSize = func.ReceiveLong(client, xb.FileSizeBuffer);
         if (!rh.FileSize(fileSize, client,
-                () => { Log.Red("File size overflow."); })) {
+                () => { Log.Red("File size overflow."); })) 
             return false;
-        }
-
+        
         xb.FileToUploadBuffer = new byte[fileSize];
         client.Receive(xb.FileToUploadBuffer);
-        PLog.FileUpload(core.FileUpload(dirToUpload, fileName, xb.FileToUploadBuffer).Result, 
+        PLog.FileUpload(core.FileUpload(cloudDir, fileName, xb.FileToUploadBuffer), 
             client.RemoteEndPoint!.ToString(), fileName);
         return true;
     }
 
-    public async Task<bool> DownloadFileAsync(XCloudCore core) {
-        string remotePath = await func.ReceiveStringAsync(client, xb.FileToDownloadBuffer);
-        string fileToDownload = $"{core.RootDir}/{remotePath}";
+    public bool DownloadFile(XCloudCore core) {
+        string remotePath = func.ReceiveString(client, xb.FileToDownloadBuffer);
+        string fileToDownload = Path.Combine(core.RootDir, remotePath);
         Log.Red(fileToDownload);
-        if (!await rh.LocalFileExistsAsync(remotePath, client, () => Log.Red("File doesn't exist."))) {
+    
+        if (!rh.LocalFileExists(fileToDownload, client, () => Log.Red("File doesn't exist."))) {
             return false;
         }
 
         FileInfo fi = new FileInfo(fileToDownload);
-        await client.SendAsync(Encoding.UTF8.GetBytes(fi.Name));
-        await client.SendAsync(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fi.Length)));
-        Log.Red("double async passed");
+
+        // --- отправляем длину имени ---
+        byte[] fileNameBytes = Encoding.UTF8.GetBytes(fi.Name);
+        client.Send(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fileNameBytes.Length)));
+        // --- затем само имя ---
+        client.Send(fileNameBytes);
+
+        // --- отправляем размер файла ---
+        client.Send(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fi.Length)));
+
         byte[] buffer = new byte[XCloudServerConfig.chunkSize];
         long totalSent = 0;
 
-        await using (FileStream fs = new FileStream(fileToDownload, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+        using (FileStream fs = new FileStream(fileToDownload, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             int bytesRead;
-            while ((bytesRead = await fs.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0) {
-                await client.SendAsync(new ArraySegment<byte>(buffer, 0, bytesRead));
+            while ((bytesRead = fs.Read(buffer, 0, buffer.Length)) > 0) {
+                client.Send(buffer, 0, bytesRead, SocketFlags.None);
                 totalSent += bytesRead;
             }
         }
 
         Log.Green($"File download done ({fi.Name}, {fi.Length} bytes)");
-        await client.SendAsync(BitConverter.GetBytes((long)EResponseCode.FileTransferComplete));
+        client.Send(BitConverter.GetBytes((long)EResponseCode.FileTransferComplete));
         return true;
     }
+
 
     public async Task<bool> DeleteFileAsync(XCloudCore core) {
         string fileToDelete = $"{core.RootDir}/{await func.ReceiveStringAsync(client, xb.FileToDownloadBuffer)}";
@@ -110,11 +118,10 @@ public class XServerLogicCore(Socket client, XCloudFunc func, XBuffer xb, XRespo
 
     public async Task<bool> RenameFileAsync(XCloudCore core) {
         string oldFileName = $"{core.RootDir}/{await func.ReceiveStringAsync(client, xb.FileToRenameBuffer)}";
-        if (!await rh.LocalFileExistsAsync(oldFileName, client, () =>  { Log.Red("File doesn't exist."); })) {
+        if (!await rh.LocalFileExistsAsync(oldFileName, client, () =>  { Log.Red("File doesn't exist."); })) 
             return false;
-        }
+        
         string newFileName = $"{core.RootDir}/{await func.ReceiveStringAsync(client, xb.FileToRenameBuffer)}";
-                            
         
         Log.Red(oldFileName);
         Log.Red(newFileName);
@@ -127,9 +134,8 @@ public class XServerLogicCore(Socket client, XCloudFunc func, XBuffer xb, XRespo
 
     public async Task<bool> CopyFileAsync(XCloudCore core) {
         string fileToCopy = $"{core.RootDir}/{await func.ReceiveStringAsync(client, xb.FileToCopyBuffer)}";
-        if (!await rh.LocalFileExistsAsync(fileToCopy, client, () =>  { Log.Red("File doesn't exist."); })) {
+        if (!await rh.LocalFileExistsAsync(fileToCopy, client, () =>  { Log.Red("File doesn't exist."); }))
             return false;
-        }
                             
         if (await core.FileCopy(fileToCopy)) {
             Log.Green("Request 'FileCopy' succeeded.");

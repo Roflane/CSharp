@@ -52,28 +52,29 @@ public class XClientLogicCore(Socket socket, XCloudFunc func, XBuffer xb, XRespo
         return true;
     }
     
-    public async Task<bool> UploadFileAsync() {
+    public bool UploadFile() {
         Log.Green("Enter remote directory to upload a file: ");
-        string remoteDir = Console.ReadLine()!;
-        if (string.IsNullOrEmpty(remoteDir)) return false;
-                         
-        await socket.SendAsync(Encoding.UTF8.GetBytes(remoteDir));
+        string cloudDir = Console.ReadLine()!;
+        if (string.IsNullOrEmpty(cloudDir)) return false;
+        socket.Send(Encoding.UTF8.GetBytes(cloudDir));
 
-        EResponseCode remoteDirStatus = await func.ReceiveDataAsync(xb.StatusBuffer);
-        if (remoteDirStatus == EResponseCode.DirNotExists) return false;
+        EResponseCode remoteDirStatus = func.ReceiveData(xb.StatusBuffer);
+        if (remoteDirStatus == EResponseCode.DirNotExists) {
+            Log.Red("Directory doesn't exist.", true);
+            return false;
+        }
 
         Log.Green("Enter file path to upload: ");
-        string myDir = Console.ReadLine()!;
+        string filePath = Console.ReadLine()!;
 
         try {
-            FileInfo fi = new FileInfo(myDir);
-            if (!rh.LocalFileExistence(fi.Exists, fi.Name, () => {
-                    Log.Red("File doesn't exist\nPress any key to return false", true);
+            FileInfo fi = new FileInfo(filePath);
+            if (!rh.LocalFileExists(fi.Exists, fi.Name, () => {
+                    Log.Red("File doesn't exist.", true);
                 })) return false;
+            
             socket.Send(BitConverter.GetBytes(fi.Length));
-                            
-            EResponseCode status = await func.ReceiveDataAsync(xb.StatusBuffer);
-            if (!rh.FileSize(status, myDir, () => PLog.FileSize(status))) return false;
+            socket.Send(File.ReadAllBytes(filePath));
         }
         catch (Exception ex) {
             Log.Red($"Error: {ex.Message}");
@@ -81,73 +82,70 @@ public class XClientLogicCore(Socket socket, XCloudFunc func, XBuffer xb, XRespo
         return true;
     }
     
-    public async Task<bool> DownloadFileAsync() {    
+    
+    public bool DownloadFile() {    
         Log.Green("Enter remote directory to download a file: ");
-        string remoteFile = Console.ReadLine()!;
+        string remoteFile = Console.ReadLine()!.Trim();
         if (string.IsNullOrEmpty(remoteFile)) return false;
-
-        await socket.SendAsync(Encoding.UTF8.GetBytes(remoteFile));
-        EResponseCode remoteFileStatus = await func.ReceiveDataAsync(xb.StatusBuffer);
+        
+        socket.Send(Encoding.UTF8.GetBytes(remoteFile));
+        
+        EResponseCode remoteFileStatus = func.ReceiveData(xb.StatusBuffer);
         if (remoteFileStatus != EResponseCode.FileExists) {
             Log.Red("File not found on server.", true);
             return false;
         }
         
-        Log.Green("Enter desired directory: ");
-        string localDir = Console.ReadLine()!;
+        Log.Green("Enter your directory to download a file: ");
+        string localDir = Console.ReadLine()!.Trim();
         if (string.IsNullOrEmpty(localDir)) return false;
         
-        string remoteFileName = await func.ReceiveStringAsync(xb.RemoteFileNameBuffer);
-        long remoteFileSize = await func.ReceiveLongAsync(new byte[sizeof(long)]);
-        Log.Red("double async passed");
-        remoteFileSize = IPAddress.NetworkToHostOrder(remoteFileSize);
-
-        if (remoteFileSize <= 0) {
-            Log.Red($"Invalid file size received: {remoteFileSize}");
+        byte[] lenBuffer = new byte[sizeof(int)];
+        int bytesReadLen = socket.Receive(lenBuffer);
+        if (bytesReadLen != sizeof(int)) {
+            Log.Red("Failed to receive filename length.", true);
             return false;
         }
-        Log.Green($"remoteFileSize received ({remoteFileSize} bytes)\n");
+        int fileNameLength = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(lenBuffer));
+        
+        byte[] nameBuffer = new byte[fileNameLength];
+        int totalNameReceived = 0;
+        while (totalNameReceived < fileNameLength) {
+            int received = socket.Receive(nameBuffer, totalNameReceived, fileNameLength - totalNameReceived, SocketFlags.None);
+            if (received <= 0) break;
+            totalNameReceived += received;
+        }
+
+        string remoteFileName = Encoding.UTF8.GetString(nameBuffer, 0, totalNameReceived).TrimEnd('\0');
+        
+        byte[] sizeBuffer = new byte[sizeof(long)];
+        int bytesReadSize = socket.Receive(sizeBuffer);
+        if (bytesReadSize != sizeof(long)) {
+            Log.Red("Failed to receive file size.", true);
+            return false;
+        }
+        long remoteFileSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt64(sizeBuffer));
         
         string localPath = Path.Combine(localDir, remoteFileName);
         Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
         
-        int n = 0;
-        string directory = Path.GetDirectoryName(localPath)!;
-        string fileNameWithoutExt = Path.GetFileNameWithoutExtension(localPath);
-        string extension = Path.GetExtension(localPath);
-        string newFilePath = localPath;
-
-        while (File.Exists(newFilePath)) {
-            n++;
-            string newFileName = $"{fileNameWithoutExt} ({n}){extension}";
-            newFilePath = Path.Combine(directory, newFileName);
-        }
-
-        byte[] chunkedBuffer = new byte[XCloudClientConfig.ChunkSize];
+        byte[] chunk = new byte[1024 * 16];
         long totalReceived = 0;
 
-        await using (FileStream fs = new FileStream(newFilePath, FileMode.Create, FileAccess.Write)) {
+        using (FileStream fs = new FileStream(localPath, FileMode.Create, FileAccess.Write)) {
             while (totalReceived < remoteFileSize) {
-                int bytesToReceive = (int)Math.Min(XCloudClientConfig.ChunkSize, remoteFileSize - totalReceived);
-                int received = await socket.ReceiveAsync(new ArraySegment<byte>(chunkedBuffer, 0, bytesToReceive));
-
-                if (received == 0) {
-                    Log.Red("Connection closed unexpectedly.");
-                    break;
-                }
-                
-                await fs.WriteAsync(chunkedBuffer.AsMemory(0, received));
-                totalReceived += received;
-                
-                double percent = (double)totalReceived / remoteFileSize * 100;
-                Log.Green($"\rReceived: {totalReceived}/{remoteFileSize} bytes ({percent:F1}%)");
+                int receivedBytes = socket.Receive(chunk, 0, chunk.Length, SocketFlags.None);
+                if (receivedBytes <= 0) break;
+                fs.Write(chunk, 0, receivedBytes);
+                totalReceived += receivedBytes;
             }
         }
         
-        EResponseCode finalCode = await func.ReceiveDataAsync(xb.StatusBuffer);
-        PLog.FileDownload(finalCode, totalReceived, remoteFileSize);
+        Log.Green($"File downloaded successfully ({remoteFileName}, {remoteFileSize} bytes)");
         return true;
     }
+
+
 
     public async Task<bool> DeleteFileAsync() {
         Log.Green("Enter remote directory to delete a file: ");

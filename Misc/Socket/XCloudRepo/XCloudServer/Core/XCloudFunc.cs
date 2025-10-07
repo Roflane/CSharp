@@ -27,4 +27,9 @@ public class XCloudFunc {
         client.Receive(buffer);
         return BitConverter.ToInt64(buffer, 0);
     }
+    
+    public async Task<long> ReceiveLongAsync(Socket client, byte[] buffer) {
+        await client.ReceiveAsync(buffer);
+        return BitConverter.ToInt64(buffer, 0);
+    }
 }

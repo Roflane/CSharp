@@ -13,7 +13,7 @@ public class XCloudFunc(Socket socket) {
     }
 
     public string ReceiveString(byte[] buffer) {
-        return Encoding.UTF8.GetString(buffer, 0, socket.Receive(buffer));
+        return Encoding.UTF8.GetString(buffer, 0, socket.Receive(buffer)).TrimEnd('\0');
     }
     
     public async Task<string> ReceiveStringAsync(byte[] buffer) {
