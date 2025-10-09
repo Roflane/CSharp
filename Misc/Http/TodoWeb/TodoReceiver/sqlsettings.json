@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Default": "Data Source=NexusLite-PC\\SQLEXPRESS;Initial Catalog=TodoDb;Trust Server Certificate=True;Trusted_Connection=True;"
+  }
+}

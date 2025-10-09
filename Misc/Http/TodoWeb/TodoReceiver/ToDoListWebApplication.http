@@ -1,0 +1,25 @@
+@Host = http://localhost:5000
+
+GET {{Host}}/api/v1/todolist HTTP/2
+Accept: application/json
+
+###
+
+GET {{Host}}/api/v1/todolist/2 HTTP/2
+Accept: application/json
+
+###
+
+POST {{Host}}/api/v1/todolist HTTP/2
+Content-Type: application/json
+
+{
+  "id": 2,
+  "title": "Complete the task!",
+  "description": "Some description for the task",
+  "tags": ["Tag1", "Tag2", "Tag3"]
+}
+
+###
+
+DELETE {{Host}}/api/v1/todolist/1 HTTP/2
