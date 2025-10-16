@@ -78,13 +78,9 @@ public class XServerLogicCore(Socket client, XCloudFunc func, XBuffer xb, XRespo
 
         FileInfo fi = new FileInfo(fileToDownload);
 
-        // --- отправляем длину имени ---
         byte[] fileNameBytes = Encoding.UTF8.GetBytes(fi.Name);
         client.Send(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fileNameBytes.Length)));
-        // --- затем само имя ---
         client.Send(fileNameBytes);
-
-        // --- отправляем размер файла ---
         client.Send(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fi.Length)));
 
         byte[] buffer = new byte[XCloudServerConfig.chunkSize];
